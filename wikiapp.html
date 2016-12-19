@@ -1,0 +1,166 @@
+
+
+<!DOCTYPE html>
+<html >
+
+<head>
+  <meta charset="UTF-8">
+  <title>Wikipedia Viewer</title>
+
+
+
+  <link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css'>
+<link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css'>
+
+      <style>
+      body{
+  background-color: #FF9800;
+}
+h1{
+  color: white;
+  text-shadow: 2px 2px 4px #000000;
+}
+#clear-btn {
+      position: absolute;
+      display: block;
+      top: 0;
+      right: 0;
+      margin-right: 20px;
+      padding: 6px;
+      color: #2196F3;
+      text-shadow: 1px 1px 2px #2196F3;
+    }
+#clear-btn:hover{
+  cursor: pointer;
+}
+
+.btn-rnd{
+  background-color:#2196F3;
+   outline: none;
+
+  margin-top:-50px;
+}
+.btn-rnd:hover{
+  box-shadow: 0 0 10px black;
+  transition: all .2s ease-in-out;
+  transform: scale(1.1);
+  background-color:#2196F3;
+}
+
+/* h2{
+  color: white; !important;
+} */
+input[type='text'] {
+  -webkit-appearance: none;
+  outline: none;
+  border: none;
+  margin-bottom: 3em;
+
+}
+ul li {
+   list-style-type: none;
+   background-color: #64B5F6;
+   margin-bottom: 1em;
+   padding: 1em 2em 2em ;
+   border-radius: 10px;
+
+}
+
+li:hover {
+    background-color: #673AB7;
+   box-shadow: 0 0 30px black;
+  transition: all .2s ease-in-out;
+  transform: scale(1.1);
+/*     border-left: 5px solid $black;
+    margin-left: -5px; */
+}
+
+.grow:hover { transform: scale(1.1); }
+    </style>
+
+</head>
+
+<body translate="no" >
+
+  <div class="container-fluid ">
+  <div class="row text-center">
+    <h1>
+  Wikipedia Search
+</h1>
+  </div>
+  <div class="row ">
+    <div class="col-sm-4  col-sm-offset-4 ">
+
+      <input class="form-control" id="search" type="text" placeholder="Type here" style="box-shadow: 0 0 10px black;">
+      <div id="clear-btn" class="delete">X</div>
+    </div>
+  </div>
+   <div class = "row text-center">
+    <div class = "col-xs-12">
+      <a href="http://en.wikipedia.org/wiki/Special:Random" target="_blank">
+      <button class = "btn-rnd btn btn-primary">
+        Random Query
+      </button>
+        </a>
+    </div>
+  </div>
+  <div class="row col-sm-6 col-sm-offset-3">
+    <div class="search-results">
+      <ul class="article-list"></ul>
+    </div>
+  </div>
+
+</div>
+
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script>
+
+    <script>
+    var previousSearch = '';
+$(document).ready(function () {
+    var inputText = document.getElementById('search');
+    $('#search').on('keyup', function (e) {
+        if (e.keyCode == 13) {
+            var input = encodeURIComponent($('#search').val());
+            if (previousSearch !== input) {
+                getWikiResults(input);
+                deleteResults();
+            }
+        }
+    });
+    function getWikiResults(query) {
+        previousSearch = query;
+        $.getJSON('https://en.wikipedia.org/w/api.php?format=json&action=query&generator=search&prop=extracts&exlimit=max&explaintext&exintro&exsentences=1&gsrsearch=' + query + '&callback=?', function (data) {
+            var results = [];
+            if (data.query && data.query.pages) {
+                for (var pid in data.query.pages) {
+                    var page = data.query.pages[pid];
+                    var extract = page.extract;
+                    results.push({
+                        id: page.pageid,
+                        title: page.title,
+                        desc: page.extract
+                    });
+                    $('.article-list').append('<li style="color: white"><h2><a style="color: white" href="http://en.wikipedia.org/?curid=' + page.pageid + '">' + page.title + '</a></h2>' + '<p>' + extract + '</p>' + '</li>');
+                }
+            }
+        });
+    }
+    $('.delete').click(function () {
+        deleteInput();
+        deleteResults();
+    });
+    function deleteInput() {
+        inputText.value = '';
+    }
+    function deleteResults() {
+        $('.article-list').empty();
+    }
+});
+  //# sourceURL=pen.js
+  </script>
+
+
+
+
+</body>
+</html>
